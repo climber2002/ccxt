@@ -94,6 +94,17 @@ module.exports = class bybit extends Exchange {
             },
             'api': {
                 'spot': {
+                    'v1': {
+                        'get': [
+                            'order'
+                        ],
+                        'post': [
+                            'order'
+                        ],
+                        'delete': [
+                            'order'
+                        ]
+                    },
                     'public': {
                         'get': [
                             'symbols',
@@ -164,6 +175,7 @@ module.exports = class bybit extends Exchange {
                         ],
                     },
                 },
+                
                 'v2': {
                     'public': {
                         'get': [
@@ -1303,7 +1315,11 @@ module.exports = class bybit extends Exchange {
         const symbol = market['symbol'];
         let feeCurrency = undefined;
         const timestamp = this.parse8601 (this.safeString (order, 'created_at'));
-        const id = this.safeString2 (order, 'order_id', 'stop_order_id');
+        let id = this.safeString2 (order, 'order_id', 'stop_order_id');
+        // if((!id) && order['orderId']) {
+        //     const orderId = order['orderId'];
+        //     id = orderId.substring(orderId.length - 8);
+        // }
         const type = this.safeStringLower (order, 'order_type');
         const price = this.safeString (order, 'price');
         const average = this.safeString (order, 'average_price');
@@ -1408,7 +1424,7 @@ module.exports = class bybit extends Exchange {
                 method = 'futuresPrivateGetStopOrder';
             }
         }
-        const response = await this[method] (this.extend (request, params));
+        const response = await this.spotV1GetOrder (this.extend (request, params));
         //
         //     {
         //         "ret_code": 0,
@@ -1491,6 +1507,7 @@ module.exports = class bybit extends Exchange {
             // orders ---------------------------------------------------------
             'side': this.capitalize (side),
             'symbol': market['id'],
+            'type': type,
             'order_type': this.capitalize (type),
             'qty': qty, // order quantity in USD, integer only
             // 'price': parseFloat (this.priceToPrecision (symbol, price)), // required for limit orders
@@ -1561,7 +1578,7 @@ module.exports = class bybit extends Exchange {
         } else if (basePrice !== undefined) {
             throw new ArgumentsRequired (this.id + ' createOrder() requires both the stop_px and base_price params for a conditional ' + type + ' order');
         }
-        const response = await this[method] (this.extend (request, params));
+        const response = await this.spotV1PostOrder(this.extend (request, params));
         //
         //     {
         //         "ret_code": 0,
@@ -1774,7 +1791,7 @@ module.exports = class bybit extends Exchange {
                 method = 'futuresPrivatePostStopOrderCancel';
             }
         }
-        const response = await this[method] (this.extend (request, params));
+        const response = await this.spotV1DeleteOrder (this.extend (request, params));
         const result = this.safeValue (response, 'result', {});
         return this.parseOrder (result, market);
     }
@@ -2502,12 +2519,12 @@ module.exports = class bybit extends Exchange {
             if (section === 'public') {
                 section = 'v1';
             } else {
-                section += '/v1';
+                section += '';
             }
         }
         let url = this.implodeHostname (this.urls['api'][type]);
         let request = '/' + type + '/' + section + '/' + path;
-        if ((type === 'spot') || (type === 'quote')) {
+        if (type === 'quote') {
             if (Object.keys (params).length) {
                 request += '?' + this.rawencode (params);
             }
@@ -2530,16 +2547,9 @@ module.exports = class bybit extends Exchange {
             const sortedQuery = this.keysort (query);
             const auth = this.rawencode (sortedQuery);
             const signature = this.hmac (this.encode (auth), this.encode (this.secret));
-            if (method === 'POST') {
-                body = this.json (this.extend (query, {
-                    'sign': signature,
-                }));
-                headers = {
-                    'Content-Type': 'application/json',
-                };
-            } else {
-                request += '?' + this.urlencode (sortedQuery) + '&sign=' + signature;
-            }
+            
+            request += '?' + this.urlencode (sortedQuery) + '&sign=' + signature;
+            
         }
         url += request;
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };
