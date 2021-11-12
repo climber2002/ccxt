@@ -351,6 +351,7 @@ module.exports = class ftx extends Exchange {
                     'OMNI': 'omni',
                     'BEP2': 'bep2',
                     'BNB': 'bep2',
+                    'BSC': 'bsc'
                 },
             },
         });
