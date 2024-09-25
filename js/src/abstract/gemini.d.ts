@@ -1,6 +1,7 @@
 import { implicitReturnType } from '../base/types.js';
 import { Exchange as _Exchange } from '../base/Exchange.js';
 interface Exchange {
+    webExchangeGet(params?: {}): Promise<implicitReturnType>;
     webGetRestApi(params?: {}): Promise<implicitReturnType>;
     publicGetV1Symbols(params?: {}): Promise<implicitReturnType>;
     publicGetV1SymbolsDetailsSymbol(params?: {}): Promise<implicitReturnType>;
@@ -54,6 +55,7 @@ interface Exchange {
     privatePostV1AccountCreate(params?: {}): Promise<implicitReturnType>;
     privatePostV1AccountList(params?: {}): Promise<implicitReturnType>;
     privatePostV1Heartbeat(params?: {}): Promise<implicitReturnType>;
+    privatePostV1Roles(params?: {}): Promise<implicitReturnType>;
 }
 declare abstract class Exchange extends _Exchange {
 }

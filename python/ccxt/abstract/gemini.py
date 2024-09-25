@@ -2,6 +2,7 @@ from ccxt.base.types import Entry
 
 
 class ImplicitAPI:
+    webexchange_get = webExchangeGet = Entry('', 'webExchange', 'GET', {})
     web_get_rest_api = webGetRestApi = Entry('rest-api', 'web', 'GET', {})
     public_get_v1_symbols = publicGetV1Symbols = Entry('v1/symbols', 'public', 'GET', {'cost': 5})
     public_get_v1_symbols_details_symbol = publicGetV1SymbolsDetailsSymbol = Entry('v1/symbols/details/{symbol}', 'public', 'GET', {'cost': 5})
@@ -55,3 +56,4 @@ class ImplicitAPI:
     private_post_v1_account_create = privatePostV1AccountCreate = Entry('v1/account/create', 'private', 'POST', {'cost': 1})
     private_post_v1_account_list = privatePostV1AccountList = Entry('v1/account/list', 'private', 'POST', {'cost': 1})
     private_post_v1_heartbeat = privatePostV1Heartbeat = Entry('v1/heartbeat', 'private', 'POST', {'cost': 1})
+    private_post_v1_roles = privatePostV1Roles = Entry('v1/roles', 'private', 'POST', {'cost': 1})
